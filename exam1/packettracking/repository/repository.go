@@ -17,34 +17,8 @@ func AddSender(sender domain.Sender) {
 	senders = append(senders, sender)
 }
 
-func GetAllSenders() []domain.Sender {
-	return senders
-}
-
-func FindSenderById(id string) (bool, *domain.Sender) {
-	for _, sender := range senders {
-		if sender.Id == id {
-			return true, &sender
-		}
-	}
-	return false, nil
-}
-
 func AddReceiver(receiver domain.Receiver) {
 	receivers = append(receivers, receiver)
-}
-
-func GetAllReceiver() []domain.Receiver {
-	return receivers
-}
-
-func FindReceiverById(id string) (bool, *domain.Receiver) {
-	for _, receiver := range receivers {
-		if receiver.Id == id {
-			return true, &receiver
-		}
-	}
-	return false, nil
 }
 
 func AddShipment(shipment domain.Shipment) {
@@ -56,9 +30,9 @@ func GetAllShipment() []domain.Shipment {
 }
 
 func FindShipmentById(id string) (bool, *domain.Shipment) {
-	for _, shipment := range shipments {
+	for i, shipment := range shipments {
 		if strings.EqualFold(shipment.Id, id) {
-			return true, &shipment
+			return true, &shipments[i]
 		}
 	}
 	return false, nil
@@ -74,9 +48,9 @@ func GetAllLocations() []domain.Location {
 }
 
 func FindLocationById(id string) (bool, *domain.Location) {
-	for _, location := range locations {
+	for i, location := range locations {
 		if strings.EqualFold(location.Id, id) {
-			return true, &location
+			return true, &locations[i]
 		}
 	}
 	return false, nil
@@ -90,45 +64,23 @@ func GetAllServices() []domain.Service {
 	return services
 }
 
-func FindServiceById(id string) (bool, *domain.Service) {
-	for _, service := range services {
-		if service.Id == id {
-			return true, &service
-		}
-	}
-	return false, nil
-}
-
 func AddPacket(packet domain.Packet) {
 	packets = append(packets, packet)
 }
 
-func GetAllPackets() []domain.Packet {
-	return packets
-}
-
-func FindPacketById(id string) (bool, *domain.Packet) {
-	for _, packet := range packets {
-		if packet.Id == id {
-			return true, &packet
-		}
-	}
-	return false, nil
-}
-
 func FindServiceByName(name string) (bool, *domain.Service) {
-	for _, service := range services {
+	for i, service := range services {
 		if strings.EqualFold(service.ServiceName, name) {
-			return true, &service
+			return true, &services[i]
 		}
 	}
 	return false, nil
 }
 
 func FindLocationByName(name string) (bool, *domain.Location) {
-	for _, loc := range locations {
+	for i, loc := range locations {
 		if strings.EqualFold(loc.LocationName, name) {
-			return true, &loc
+			return true, &locations[i]
 		}
 	}
 	return false, nil

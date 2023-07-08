@@ -8,19 +8,19 @@ type Packet struct {
 	Id          string
 	Sender      Sender
 	Receiver    Receiver
+	Origin      Location
 	Destination Location
 	Weight      float64
 }
 
-func NewPacket(sender Sender, receiver Receiver, destination Location, weight float64) *Packet {
-	return &Packet{Id: utils.GenerateId(), Sender: sender, Receiver: receiver, Destination: destination, Weight: weight}
+func NewPacket(sender Sender, receiver Receiver, origin Location, destination Location, weight float64) *Packet {
+	return &Packet{Id: utils.GenerateId(), Sender: sender, Receiver: receiver, Origin: origin, Destination: destination, Weight: weight}
 }
 
 type Sender struct {
 	Id         string
 	SenderName string
 	Phone      string
-	Shipments  []Shipment
 }
 
 func NewSender(senderName string, phone string) *Sender {

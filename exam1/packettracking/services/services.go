@@ -7,15 +7,18 @@ import (
 	"strings"
 )
 
+// CreateShipment function to create shipment and save it to the repository.
+// Returns the id of newly created shipment.
 func CreateShipment(packet domain.Packet, service domain.Service) string {
 	shippingCost := packet.Weight * service.PricePerKilogram
-	newShipment := domain.NewShipment(packet, shippingCost, service, []domain.Location{}, false)
-	senderShipments := packet.Sender.Shipments
+	newShipment := domain.NewShipment(packet, shippingCost, service, []domain.Location{packet.Origin}, false)
 	repository.AddShipment(*newShipment)
-	senderShipments = append(senderShipments, *newShipment)
 	return newShipment.Id
 }
 
+// GetAllReceivedPackets function to get all packets that has been delivered.
+// It checks the status of the Shipment-received flag.
+// Returns slice of Packet
 func GetAllReceivedPackets() []domain.Packet {
 	shipments := repository.GetAllShipment()
 	var results []domain.Packet
@@ -29,6 +32,9 @@ func GetAllReceivedPackets() []domain.Packet {
 	return results
 }
 
+// GetAllPacketsByLocationName function to get all the packets that has been going through
+// specified location name.
+// It returns a slice of PacketDetails struct.
 func GetAllPacketsByLocationName(locationName string) []domain.PacketDetails {
 	shipments := repository.GetAllShipment()
 	var results []domain.PacketDetails
@@ -40,13 +46,18 @@ func GetAllPacketsByLocationName(locationName string) []domain.PacketDetails {
 			}
 		}
 	}
-
 	return results
 }
+
+// GetAllCheckpoints function to get all Location saved in repository.
+// Returns slice of Location.
 func GetAllCheckpoints() []domain.Location {
 	return repository.GetAllLocations()
 }
 
+// UpdateShipmentCheckpoint function to update checkpoint of shipment.
+// It only appends the new checkpoint to the end of the checkpoint's slice.
+// Returns error if the Shipment or Location is not found.
 func UpdateShipmentCheckpoint(shipmentId string, locationId string) (*domain.Shipment, error) {
 	exist, shipment := repository.FindShipmentById(shipmentId)
 	existLocation, loc := repository.FindLocationById(locationId)
@@ -55,90 +66,91 @@ func UpdateShipmentCheckpoint(shipmentId string, locationId string) (*domain.Shi
 	}
 
 	shipment.CheckPoints = append(shipment.CheckPoints, *loc)
-	for _, item := range shipment.CheckPoints {
-		if item.Id == shipment.Packet.Destination.Id {
+
+	if len(shipment.CheckPoints) > 0 {
+		lastPos := shipment.CheckPoints[len(shipment.CheckPoints)-1]
+		if strings.EqualFold(lastPos.Id, shipment.Packet.Destination.Id) {
 			shipment.IsReceived = true
 		}
 	}
-
 	return shipment, nil
 }
 
+// GetAllShipment function to get all shipments saved in repository.
+// Returns slice of Shipment struct.
 func GetAllShipment() []domain.Shipment {
 	return repository.GetAllShipment()
 }
 
+// CreateService procedure to create and save a new Service into repository.
 func CreateService(serviceName string, pricePerKilogram float64) {
 	repository.AddService(*domain.NewService(serviceName, pricePerKilogram))
 }
 
+// AddSender function to add new sender into repository.
+// Returns the newly created Sender pointer.
 func AddSender(senderName string, phone string) *domain.Sender {
 	newSender := domain.NewSender(senderName, phone)
 	repository.AddSender(*newSender)
 	return newSender
 }
 
+// AddReceiver function to add new receiver into the repository.
+// Returns the newly created Receiver pointer.
 func AddReceiver(receiverName string, phone string) *domain.Receiver {
 	newReceiver := domain.NewReceiver(receiverName, phone)
 	repository.AddReceiver(*newReceiver)
 	return newReceiver
 }
 
-func AddLocation(locationName string, address string) *domain.Location {
+// AddLocation function to add new Location into the repository.
+// Returns the newly created Location pointer.
+// It only puts the Location into the repository if the new Location name doesn't exist in the repository.
+func AddLocation(locationName string, address string) (bool, *domain.Location) {
 	exist, loc := repository.FindLocationByName(locationName)
 	if !exist {
 		newLocation := domain.NewLocation(locationName, address)
 		repository.AddLocation(newLocation)
-		return newLocation
+		return true, newLocation
 	}
-	return loc
+	return false, loc
 }
 
-func AddPacket(sender domain.Sender, receiver domain.Receiver, destination domain.Location, weight float64) *domain.Packet {
-	newPacket := domain.NewPacket(sender, receiver, destination, weight)
+// AddPacket function to add the new packet into the repository.
+// Returns the newly created Packet pointer.
+func AddPacket(sender domain.Sender, receiver domain.Receiver, origin domain.Location, destination domain.Location, weight float64) *domain.Packet {
+	newPacket := domain.NewPacket(sender, receiver, origin, destination, weight)
 	repository.AddPacket(*newPacket)
 	return newPacket
 }
 
-func FindPacketById(id string) *domain.Packet {
-	exist, packet := repository.FindPacketById(id)
-	if !exist {
-		return nil
-	}
-
-	return packet
-}
-
+// GetAllServices function to get all Services from the repository.
+// Returns slice of Services.
 func GetAllServices() []domain.Service {
 	return repository.GetAllServices()
 }
 
+// GetAllServiceNames function to get all service names from repository,
+// Returns slice of service's name
 func GetAllServiceNames() []string {
 	var results []string
-
-	for _, item := range repository.GetAllServices() {
+	services := repository.GetAllServices()
+	for _, item := range services {
 		results = append(results, item.ServiceName)
 	}
 	return results
 }
 
+// GetServiceByName function to query service from repository by service name.
+// This method is case-insensitive.
+// Returns a single Service pointer.
 func GetServiceByName(name string) *domain.Service {
-	exist, service := repository.FindServiceByName(name)
-	if !exist {
-		return nil
-	}
-
+	_, service := repository.FindServiceByName(name)
 	return service
 }
 
-func GetLocationByName(name string) *domain.Location {
-	exist, location := repository.FindLocationByName(name)
-	if !exist {
-		return nil
-	}
-	return location
-}
-
+// GetShipmentById function to query Shipment from repository by Shipment ID.
+// Returns boolean to indicate the existence of Shipment and Shipment pointer.
 func GetShipmentById(id string) (bool, *domain.Shipment) {
 	return repository.FindShipmentById(id)
 }
