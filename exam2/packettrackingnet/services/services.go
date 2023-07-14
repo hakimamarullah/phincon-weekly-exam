@@ -41,8 +41,11 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 	packetData := <-packet
 	serviceData := <-service
 
+	if serviceData == nil || packetData == nil {
+		return nil, errors.New("service or packet doesn't exist")
+	}
 	shippingCost := packetData.Weight * serviceData.PricePerKilogram
-	newShipment := domain.NewShipment(*packetData, shippingCost, *serviceData, []domain.Location{packetData.Origin}, false)
+	newShipment := domain.NewShipment(*packetData, shippingCost, *serviceData, []*domain.Location{packetData.Origin}, false)
 	repository.AddShipment(*newShipment)
 	return newShipment, nil
 }
@@ -52,7 +55,7 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 // Returns slice of Packet
 func GetAllReceivedPackets() []domain.Packet {
 	shipments, _ := repository.GetAllShipment()
-	var results []domain.Packet
+	var results = make([]domain.Packet, 0)
 
 	for _, item := range *shipments {
 		if item.IsReceived {
@@ -68,7 +71,7 @@ func GetAllReceivedPackets() []domain.Packet {
 // It returns a slice of PacketDetails struct.
 func GetAllPacketsByLocationName(r *http.Request) []domain.PacketDetails {
 	shipments, _ := repository.GetAllShipment()
-	var results []domain.PacketDetails
+	var results = make([]domain.PacketDetails, 0)
 	query := r.URL.Query()
 	locationName := query.Get("locationName")
 	for _, ship := range *shipments {
@@ -121,7 +124,7 @@ func UpdateShipmentCheckpoint(r *http.Request) (*domain.Shipment, error) {
 		return nil, errors.New("data not found")
 	}
 
-	shipment.CheckPoints = append(shipment.CheckPoints, *location)
+	shipment.CheckPoints = append(shipment.CheckPoints, location)
 
 	if len(shipment.CheckPoints) > 0 {
 		lastPos := shipment.CheckPoints[len(shipment.CheckPoints)-1]
@@ -137,25 +140,6 @@ func UpdateShipmentCheckpoint(r *http.Request) (*domain.Shipment, error) {
 func GetAllShipment() []domain.Shipment {
 	results, _ := repository.GetAllShipment()
 	return *results
-}
-
-// CreateService procedure to create and save a new Service into repository.
-func CreateService(r *http.Request) (*domain.Service, error) {
-	var service domain.Service
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&service); err != nil {
-		return nil, errors.New(err.Error())
-	}
-	defer r.Body.Close()
-
-	err := validator.New().Struct(service)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	newService := domain.NewService(service.ServiceName, service.PricePerKilogram)
-	repository.AddService(*newService)
-	return newService, nil
 }
 
 // AddSender function to add new sender into repository.
@@ -247,10 +231,10 @@ func AddLocation(r *http.Request) (*domain.Location, error) {
 // AddPacket function to add the new packet into the repository.
 // Returns the newly created Packet pointer.
 func AddPacket(r *http.Request) (*domain.Packet, error) {
-	sender := make(chan domain.Sender)
-	receiver := make(chan domain.Receiver)
-	origin := make(chan domain.Location)
-	destination := make(chan domain.Location)
+	senderChan := make(chan *domain.Sender)
+	receiverChan := make(chan *domain.Receiver)
+	originChan := make(chan *domain.Location)
+	destinationChan := make(chan *domain.Location)
 	var packetRequest dto.PacketRequest
 
 	decoder := json.NewDecoder(r.Body)
@@ -264,25 +248,34 @@ func AddPacket(r *http.Request) (*domain.Packet, error) {
 	}
 	go func() {
 		_, tmp := repository.FindSenderById(packetRequest.SenderID)
-		sender <- *tmp
+		senderChan <- tmp
 	}()
 
 	go func() {
 		_, tmp := repository.FindReceiverById(packetRequest.ReceiverID)
-		receiver <- *tmp
+		receiverChan <- tmp
 	}()
 
 	go func() {
 		_, tmp := repository.FindLocationByName(packetRequest.OriginName)
-		origin <- *tmp
+		originChan <- tmp
 	}()
 
 	go func() {
 		_, tmp := repository.FindLocationByName(packetRequest.DestinationName)
-		destination <- *tmp
+		destinationChan <- tmp
 	}()
 
-	newPacket := domain.NewPacket(<-sender, <-receiver, <-origin, <-destination, packetRequest.Weight)
+	sender := <-senderChan
+	receiver := <-receiverChan
+	origin := <-originChan
+	destination := <-destinationChan
+
+	if sender == nil || receiver == nil || origin == nil || destination == nil {
+		return nil, errors.New("incomplete data")
+	}
+
+	newPacket := domain.NewPacket(*sender, *receiver, origin, destination, packetRequest.Weight)
 	repository.AddPacket(*newPacket)
 	return newPacket, nil
 }
@@ -319,6 +312,36 @@ func GetServiceByName(r *http.Request) *domain.Service {
 // Returns boolean to indicate the existence of Shipment and Shipment pointer.
 func GetShipmentById(r *http.Request) (bool, *domain.Shipment) {
 	query := r.URL.Query()
-	id := query.Get("id")
+	id := query.Get("trackingId")
 	return repository.FindShipmentById(id)
+}
+
+func UpdateLocationAddress(r *http.Request) (error, *domain.Location) {
+	var request dto.UpdateLocationAddressRequest
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&request); err != nil {
+		return errors.New(err.Error()), nil
+	}
+	defer r.Body.Close()
+
+	err := validator.New().Struct(request)
+	if err != nil {
+		return errors.New(err.Error()), nil
+	}
+
+	exist, loc := repository.FindLocationByName(request.LocationName)
+	if !exist {
+		return errors.New("location doesn't exist"), nil
+	}
+
+	loc.Address = request.Address
+	return nil, loc
+}
+
+func PersistData() {
+	repository.PersistData()
+}
+
+func InitDatastore() {
+	repository.InitDatastore()
 }

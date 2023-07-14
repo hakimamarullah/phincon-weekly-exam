@@ -5,15 +5,15 @@ import (
 )
 
 type Packet struct {
-	Id          string   `json:"id"`
-	Sender      Sender   `json:"sender" validate:"required"`
-	Receiver    Receiver `json:"receiver" validate:"required"`
-	Origin      Location `json:"origin" validate:"required"`
-	Destination Location `json:"destination" validate:"required"`
-	Weight      float64  `json:"weight"`
+	Id          string    `json:"id"`
+	Sender      Sender    `json:"sender" validate:"required"`
+	Receiver    Receiver  `json:"receiver" validate:"required"`
+	Origin      *Location `json:"origin" validate:"required"`
+	Destination *Location `json:"destination" validate:"required"`
+	Weight      float64   `json:"weight"`
 }
 
-func NewPacket(sender Sender, receiver Receiver, origin Location, destination Location, weight float64) *Packet {
+func NewPacket(sender Sender, receiver Receiver, origin *Location, destination *Location, weight float64) *Packet {
 	return &Packet{Id: helpers.GenerateUUID(), Sender: sender, Receiver: receiver, Origin: origin, Destination: destination, Weight: weight}
 }
 
@@ -38,15 +38,15 @@ func NewReceiver(receiverName string, phone string) *Receiver {
 }
 
 type Shipment struct {
-	Id           string     `json:"id"`
-	Packet       Packet     `json:"packet" validate:"required"`
-	ShippingCost float64    `json:"shippingCost" validate:"required"`
-	Service      Service    `json:"service" validate:"required"`
-	CheckPoints  []Location `json:"checkPoints"`
-	IsReceived   bool       `json:"isReceived"`
+	Id           string      `json:"id"`
+	Packet       Packet      `json:"packet" validate:"required"`
+	ShippingCost float64     `json:"shippingCost" validate:"required"`
+	Service      Service     `json:"service" validate:"required"`
+	CheckPoints  []*Location `json:"checkPoints"`
+	IsReceived   bool        `json:"isReceived"`
 }
 
-func NewShipment(packet Packet, shippingCost float64, service Service, checkPoints []Location, isReceived bool) *Shipment {
+func NewShipment(packet Packet, shippingCost float64, service Service, checkPoints []*Location, isReceived bool) *Shipment {
 	return &Shipment{Id: helpers.GenerateUUID(), Packet: packet, Service: service, ShippingCost: shippingCost, CheckPoints: checkPoints, IsReceived: isReceived}
 }
 

@@ -24,3 +24,8 @@ type UpdateShipmentRequest struct {
 	ShipmentID string `json:"shipmentId" validate:"required"`
 	LocationID string `json:"locationId" validate:"required"`
 }
+
+type UpdateLocationAddressRequest struct {
+	LocationName string `json:"locationName" validate:"required"`
+	Address      string `json:"address" validate:"required"`
+}

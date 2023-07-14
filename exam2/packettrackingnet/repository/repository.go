@@ -11,142 +11,140 @@ import (
 	"strings"
 )
 
+var senders = make([]domain.Sender, 0)
+var receivers = make([]domain.Receiver, 0)
+var shipments = make([]domain.Shipment, 0)
+var locations = make([]domain.Location, 0)
+var services = make([]domain.Service, 0)
+var packets = make([]domain.Packet, 0)
+
+func InitDatastore() {
+	dataSender, _ := readData[domain.Sender](config.SENDER)
+	senders = *dataSender
+
+	dataReceiver, _ := readData[domain.Receiver](config.RECEIVER)
+	receivers = *dataReceiver
+
+	dataShipments, _ := readData[domain.Shipment](config.SHIPMENT)
+	shipments = *dataShipments
+
+	dataLocation, _ := readData[domain.Location](config.LOCATION)
+	locations = *dataLocation
+
+	dataService, _ := readData[domain.Service](config.SERVICE)
+	services = *dataService
+
+	dataPackets, _ := readData[domain.Packet](config.PACKET)
+	packets = *dataPackets
+}
+
+func PersistData() {
+	writeData[domain.Sender](config.SENDER, senders)
+	writeData[domain.Receiver](config.RECEIVER, receivers)
+	writeData[domain.Shipment](config.SHIPMENT, shipments)
+	writeData[domain.Location](config.LOCATION, locations)
+	writeData[domain.Service](config.SERVICE, services)
+	writeData[domain.Packet](config.PACKET, packets)
+}
+
 func AddSender(sender domain.Sender) error {
-	senders, err := readData[domain.Sender](config.SENDER)
-	if err != nil {
-		return err
-	}
-	*senders = append(*senders, sender)
-	writeData[domain.Sender](config.SENDER, *senders)
+	senders = append(senders, sender)
 	return nil
 }
 
 func AddReceiver(receiver domain.Receiver) error {
-	receivers, err := readData[domain.Receiver](config.RECEIVER)
-	if err != nil {
-		return err
-	}
-	*receivers = append(*receivers, receiver)
-	writeData[domain.Receiver](config.RECEIVER, *receivers)
+	receivers = append(receivers, receiver)
 	return nil
 }
 
 func AddShipment(shipment domain.Shipment) error {
-	shipments, err := readData[domain.Shipment](config.SHIPMENT)
-	if err != nil {
-		return err
-	}
-	*shipments = append(*shipments, shipment)
-	writeData[domain.Shipment](config.SHIPMENT, *shipments)
+	shipments = append(shipments, shipment)
 	return nil
 }
 
 func GetAllShipment() (*[]domain.Shipment, error) {
-	return readData[domain.Shipment](config.SHIPMENT)
+	return &shipments, nil
 }
 
 func FindShipmentById(id string) (bool, *domain.Shipment) {
-	shipments, _ := readData[domain.Shipment](config.SHIPMENT)
-	for i, shipment := range *shipments {
+	for i, shipment := range shipments {
 		if strings.EqualFold(shipment.Id, id) {
-			return true, &(*shipments)[i]
+			return true, &shipments[i]
 		}
 	}
 	return false, nil
 }
 
 func FindSenderById(id string) (bool, *domain.Sender) {
-	senders, _ := readData[domain.Sender](config.SENDER)
-	for i, sender := range *senders {
+	for i, sender := range senders {
 		if strings.EqualFold(sender.Id, id) {
-			return true, &(*senders)[i]
+			return true, &senders[i]
 		}
 	}
 	return false, nil
 }
 
 func FindReceiverById(id string) (bool, *domain.Receiver) {
-	receivers, _ := readData[domain.Receiver](config.RECEIVER)
-	for i, receiver := range *receivers {
+	for i, receiver := range receivers {
 		if strings.EqualFold(receiver.Id, id) {
-			return true, &(*receivers)[i]
+			return true, &receivers[i]
 		}
 	}
 	return false, nil
 }
 
 func FindPacketById(id string) (bool, *domain.Packet) {
-	packets, _ := readData[domain.Packet](config.PACKET)
-	for i, packet := range *packets {
+	for i, packet := range packets {
 		if strings.EqualFold(packet.Id, id) {
-			return true, &(*packets)[i]
+			return true, &packets[i]
 		}
 	}
 	return false, nil
 }
 
 func AddLocation(location *domain.Location) {
-	locations, _ := readData[domain.Location](config.LOCATION)
-	location.Id = helpers.GenerateIdLocation(len(*locations))
-	*locations = append(*locations, *location)
-	writeData[domain.Location](config.LOCATION, *locations)
+	location.Id = helpers.GenerateIdLocation(len(locations))
+	locations = append(locations, *location)
 }
 
 func GetAllLocations() ([]domain.Location, error) {
-	results, err := readData[domain.Location](config.LOCATION)
-	return *results, err
+	return locations, nil
 }
 
 func FindLocationById(id string) (bool, *domain.Location) {
-	locations, _ := readData[domain.Location](config.LOCATION)
-	for i, location := range *locations {
+	for i, location := range locations {
 		if strings.EqualFold(location.Id, id) {
-			return true, &(*locations)[i]
+			return true, &locations[i]
 		}
 	}
 	return false, nil
 }
 
-func AddService(service domain.Service) error {
-	services, err := readData[domain.Service](config.SERVICE)
-	if err != nil {
-		return err
-	}
-	*services = append(*services, service)
-	writeData[domain.Service](config.SERVICE, *services)
-	return nil
+func AddService(service domain.Service) {
+	services = append(services, service)
 }
 
 func GetAllServices() ([]domain.Service, error) {
-	services, err := readData[domain.Service](config.SERVICE)
-	return *services, err
+	return services, nil
 }
 
-func AddPacket(packet domain.Packet) error {
-	packets, err := readData[domain.Packet](config.PACKET)
-	if err != nil {
-		return err
-	}
-	*packets = append(*packets, packet)
-	writeData[domain.Packet](config.PACKET, *packets)
-	return nil
+func AddPacket(packet domain.Packet) {
+	packets = append(packets, packet)
 }
 
 func FindServiceByName(name string) (bool, *domain.Service) {
-	services, _ := readData[domain.Service](config.SERVICE)
-	for i, service := range *services {
+	for i, service := range services {
 		if strings.EqualFold(service.ServiceName, name) {
-			return true, &(*services)[i]
+			return true, &services[i]
 		}
 	}
 	return false, nil
 }
 
 func FindLocationByName(name string) (bool, *domain.Location) {
-	locations, _ := readData[domain.Location](config.LOCATION)
-	for i, loc := range *locations {
+	for i, loc := range locations {
 		if strings.EqualFold(loc.LocationName, name) {
-			return true, &(*locations)[i]
+			return true, &locations[i]
 		}
 	}
 	return false, nil
