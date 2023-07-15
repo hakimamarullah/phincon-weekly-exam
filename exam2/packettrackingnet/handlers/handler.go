@@ -127,3 +127,17 @@ func updateLocationAddressByName(w http.ResponseWriter, r *http.Request) {
 
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: *updatedLocation})
 }
+
+func bulkCreateShipments(w http.ResponseWriter, r *http.Request) {
+	err := services.UploadShipmentCSV(r)
+	if err != nil {
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusBadRequest})
+		return
+	}
+
+	helpers.ResponseJSON(w, dto.ResponseBody{Code: http.StatusCreated})
+}
+
+func endpointNotFound(w http.ResponseWriter) {
+	helpers.ResponseJSON(w, dto.ResponseBody{Message: "Resource Not Found", Code: http.StatusNotFound})
+}

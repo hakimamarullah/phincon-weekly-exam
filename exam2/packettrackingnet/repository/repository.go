@@ -68,7 +68,7 @@ func GetAllShipment() (*[]domain.Shipment, error) {
 
 func FindShipmentById(id string) (bool, *domain.Shipment) {
 	for i, shipment := range shipments {
-		if strings.EqualFold(shipment.Id, id) {
+		if strings.EqualFold(shipment.ShipmentId, id) {
 			return true, &shipments[i]
 		}
 	}
@@ -77,7 +77,7 @@ func FindShipmentById(id string) (bool, *domain.Shipment) {
 
 func FindSenderById(id string) (bool, *domain.Sender) {
 	for i, sender := range senders {
-		if strings.EqualFold(sender.Id, id) {
+		if strings.EqualFold(sender.SenderId, id) {
 			return true, &senders[i]
 		}
 	}
@@ -86,7 +86,7 @@ func FindSenderById(id string) (bool, *domain.Sender) {
 
 func FindReceiverById(id string) (bool, *domain.Receiver) {
 	for i, receiver := range receivers {
-		if strings.EqualFold(receiver.Id, id) {
+		if strings.EqualFold(receiver.ReceiverId, id) {
 			return true, &receivers[i]
 		}
 	}
@@ -95,7 +95,7 @@ func FindReceiverById(id string) (bool, *domain.Receiver) {
 
 func FindPacketById(id string) (bool, *domain.Packet) {
 	for i, packet := range packets {
-		if strings.EqualFold(packet.Id, id) {
+		if strings.EqualFold(packet.PacketId, id) {
 			return true, &packets[i]
 		}
 	}
@@ -103,7 +103,7 @@ func FindPacketById(id string) (bool, *domain.Packet) {
 }
 
 func AddLocation(location *domain.Location) {
-	location.Id = helpers.GenerateIdLocation(len(locations))
+	location.LocationId = helpers.GenerateIdLocation(len(locations))
 	locations = append(locations, *location)
 }
 
@@ -113,7 +113,7 @@ func GetAllLocations() ([]domain.Location, error) {
 
 func FindLocationById(id string) (bool, *domain.Location) {
 	for i, location := range locations {
-		if strings.EqualFold(location.Id, id) {
+		if strings.EqualFold(location.LocationId, id) {
 			return true, &locations[i]
 		}
 	}

@@ -1,8 +1,11 @@
 package helpers
 
 import (
+	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"github.com/google/uuid"
+	"io"
 	"net/http"
 	"os"
 	"packettrackingnet/config"
@@ -58,6 +61,39 @@ func TruncateDatabase() error {
 		}
 		writer, _ := os.Create(item)
 		json.NewEncoder(writer).Encode(make([]any, 0))
+	}
+	return nil
+}
+
+func ReadUploadedCSV(file io.Reader, header bool) ([][]string, error) {
+	reader := csv.NewReader(file)
+	if !header {
+		if _, err := reader.Read(); err != nil {
+			return [][]string{}, errors.New(err.Error())
+		}
+	}
+	records, err := reader.ReadAll()
+	if err != nil {
+		return [][]string{}, errors.New(err.Error())
+	}
+
+	return records, nil
+}
+
+func WriteCSV(data [][]string) error {
+	w, err := os.Create("./repository/tmp.csv")
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	defer w.Close()
+
+	writer := csv.NewWriter(w)
+	defer writer.Flush()
+
+	for _, record := range data {
+		if err := writer.Write(record); err != nil {
+			return errors.New(err.Error())
+		}
 	}
 	return nil
 }

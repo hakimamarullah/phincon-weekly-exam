@@ -22,6 +22,7 @@ func main() {
 	mux.Handle(router.SHIPMENTS_SENDERS, &handlers.ShipmentHandler{})
 	mux.Handle(router.SHIPMENTS_RECEIVERS, &handlers.ShipmentHandler{})
 	mux.Handle(router.SHIPMENTS, &handlers.ShipmentHandler{})
+	mux.Handle(router.SHIPMENTS_BULK_CREATE, &handlers.ShipmentHandler{})
 
 	mux.Handle(router.LOCATIONS, &handlers.LocationHandler{})
 
@@ -37,7 +38,7 @@ func main() {
 	handler = middlewares.HandlerAdvice(handler)
 
 	server := http.Server{
-		Addr:    "127.0.0.1:8000",
+		Addr:    "localhost:8000",
 		Handler: handler,
 	}
 

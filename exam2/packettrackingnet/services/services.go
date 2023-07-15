@@ -5,8 +5,10 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"net/http"
+	"packettrackingnet/config/consts"
 	"packettrackingnet/domain"
 	"packettrackingnet/dto"
+	"packettrackingnet/helpers"
 	"packettrackingnet/repository"
 	"strings"
 )
@@ -45,7 +47,8 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 		return nil, errors.New("service or packet doesn't exist")
 	}
 	shippingCost := packetData.Weight * serviceData.PricePerKilogram
-	newShipment := domain.NewShipment(*packetData, shippingCost, *serviceData, []*domain.Location{packetData.Origin}, false)
+	packetData.Status = consts.ON_PROGRESS
+	newShipment := domain.NewShipment(packetData, shippingCost, *serviceData, []*domain.Location{packetData.Origin}, false)
 	repository.AddShipment(*newShipment)
 	return newShipment, nil
 }
@@ -59,7 +62,7 @@ func GetAllReceivedPackets() []domain.Packet {
 
 	for _, item := range *shipments {
 		if item.IsReceived {
-			results = append(results, item.Packet)
+			results = append(results, *item.Packet)
 		}
 	}
 
@@ -77,7 +80,7 @@ func GetAllPacketsByLocationName(r *http.Request) []domain.PacketDetails {
 	for _, ship := range *shipments {
 		for _, loc := range ship.CheckPoints {
 			if strings.EqualFold(loc.LocationName, locationName) {
-				results = append(results, *domain.NewPacketDetails(ship.Packet, ship.IsReceived))
+				results = append(results, *domain.NewPacketDetails(*ship.Packet, ship.IsReceived))
 			}
 		}
 	}
@@ -128,8 +131,9 @@ func UpdateShipmentCheckpoint(r *http.Request) (*domain.Shipment, error) {
 
 	if len(shipment.CheckPoints) > 0 {
 		lastPos := shipment.CheckPoints[len(shipment.CheckPoints)-1]
-		if strings.EqualFold(lastPos.Id, shipment.Packet.Destination.Id) {
+		if strings.EqualFold(lastPos.LocationId, shipment.Packet.Destination.LocationId) {
 			shipment.IsReceived = true
+			shipment.Packet.Status = consts.RECEIVED
 		}
 	}
 	return shipment, nil
@@ -276,6 +280,7 @@ func AddPacket(r *http.Request) (*domain.Packet, error) {
 	}
 
 	newPacket := domain.NewPacket(*sender, *receiver, origin, destination, packetRequest.Weight)
+	newPacket.Status = consts.PENDING
 	repository.AddPacket(*newPacket)
 	return newPacket, nil
 }
@@ -344,4 +349,62 @@ func PersistData() {
 
 func InitDatastore() {
 	repository.InitDatastore()
+}
+
+func UploadShipmentCSV(r *http.Request) error {
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	defer file.Close()
+
+	records, err := helpers.ReadUploadedCSV(file, false)
+	errorChan := make(chan error)
+	for _, record := range records {
+		record := record
+		go func() {
+			err := createShipmentFromCSV(record)
+			errorChan <- err
+		}()
+	}
+	err = <-errorChan
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	return nil
+}
+
+func createShipmentFromCSV(data []string) error {
+	packet := make(chan *domain.Packet)
+	service := make(chan *domain.Service)
+	var shipmentRequest dto.ShipmentRequest
+
+	shipmentRequest.PacketID = data[0]
+	shipmentRequest.ServiceName = data[1]
+
+	err := validator.New().Struct(shipmentRequest)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	go func() {
+		_, tmp := repository.FindPacketById(shipmentRequest.PacketID)
+		packet <- tmp
+	}()
+
+	go func() {
+		_, tmp := repository.FindServiceByName(shipmentRequest.ServiceName)
+		service <- tmp
+	}()
+
+	packetData := <-packet
+	serviceData := <-service
+
+	if serviceData == nil || packetData == nil {
+		return errors.New("service or packet doesn't exist")
+	}
+	shippingCost := packetData.Weight * serviceData.PricePerKilogram
+	newShipment := domain.NewShipment(packetData, shippingCost, *serviceData, []*domain.Location{packetData.Origin}, false)
+	repository.AddShipment(*newShipment)
+	return nil
 }

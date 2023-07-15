@@ -22,8 +22,11 @@ func Authenticate(next http.Handler) http.Handler {
 
 func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s\n", r.Method, r.URL.String())
-		next.ServeHTTP(w, r)
+		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		defer func() {
+			log.Printf("%-7s %s - %d\n", r.Method, r.URL.String(), rw.statusCode)
+		}()
+		next.ServeHTTP(rw, r)
 	})
 }
 
@@ -40,4 +43,14 @@ func HandlerAdvice(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
 }

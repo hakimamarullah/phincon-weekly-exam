@@ -8,4 +8,5 @@ COPY . .
 RUN go mod tidy
 RUN go build -o packettrackingnet
 
+EXPOSE 8000
 ENTRYPOINT [ "/app/packettrackingnet" ]

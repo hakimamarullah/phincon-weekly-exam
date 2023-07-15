@@ -26,6 +26,10 @@ func (sh *ShipmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		getAllShipments(w, r)
 	case strings.EqualFold(path, router.SHIPMENTS) && r.Method == http.MethodPut:
 		updateShipmentCheckpoint(w, r)
+	case strings.EqualFold(path, router.SHIPMENTS_BULK_CREATE) && r.Method == http.MethodPost:
+		bulkCreateShipments(w, r)
+	default:
+		endpointNotFound(w)
 	}
 }
 
@@ -39,6 +43,8 @@ func (lh *LocationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		getLocations(w, r)
 	case strings.EqualFold(path, router.LOCATIONS) && r.Method == http.MethodPut:
 		updateLocationAddressByName(w, r)
+	default:
+		endpointNotFound(w)
 	}
 }
 
@@ -51,6 +57,8 @@ func (ph *PacketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		getAllPacketByLocationName(w, r)
 	case strings.EqualFold(path, router.PACKETS_RECEIVED) && r.Method == http.MethodGet:
 		getAllReceivedPackets(w, r)
+	default:
+		endpointNotFound(w)
 	}
 }
 
@@ -60,6 +68,8 @@ func (th *TrackingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.Contains(path, "trackingId") && r.Method == http.MethodGet:
 		getShipmentById(w, r)
+	default:
+		endpointNotFound(w)
 	}
 }
 
@@ -75,5 +85,7 @@ func (svh *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		getServices(w, r)
 	case strings.EqualFold(path, router.SERVICES_NAMES) && r.Method == http.MethodGet:
 		getAllServiceNames(w, r)
+	default:
+		endpointNotFound(w)
 	}
 }
