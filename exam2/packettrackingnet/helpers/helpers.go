@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"packettrackingnet/config"
@@ -13,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 )
+
+var logger *log.Logger
 
 func GenerateUUID() string {
 	return uuid.New().String()
@@ -96,4 +99,19 @@ func WriteCSV(data [][]string) error {
 		}
 	}
 	return nil
+}
+
+func InitErrorLogger() {
+	file, err := os.OpenFile("./error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	defer file.Close()
+
+	logger = log.New(file, "", log.LstdFlags|log.Lshortfile)
+}
+
+func LogError(err error) {
+	logger.Fatal(err.Error())
 }

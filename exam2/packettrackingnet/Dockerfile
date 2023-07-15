@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 RUN go mod tidy
-RUN go build -o packettrackingnet
+RUN go build -o tracker
 
 EXPOSE 8000
-ENTRYPOINT [ "/app/packettrackingnet" ]
+ENTRYPOINT [ "/app/tracker" ]

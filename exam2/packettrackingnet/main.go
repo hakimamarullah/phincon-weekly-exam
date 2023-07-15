@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"packettrackingnet/handlers"
+	"packettrackingnet/helpers"
 	"packettrackingnet/middlewares"
 	"packettrackingnet/router"
 	"packettrackingnet/services"
@@ -15,6 +16,7 @@ import (
 
 func init() {
 	services.InitDatastore()
+	helpers.InitErrorLogger()
 }
 
 func main() {
@@ -38,7 +40,7 @@ func main() {
 	handler = middlewares.HandlerAdvice(handler)
 
 	server := http.Server{
-		Addr:    "localhost:8000",
+		Addr:    "0.0.0.0:8000",
 		Handler: handler,
 	}
 
@@ -63,7 +65,7 @@ func main() {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Fatal(err.Error())
+		helpers.LogError(err)
 		return
 	}
 
