@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -166,7 +167,8 @@ func downloadShipmentCSV(w http.ResponseWriter) {
 		return
 	}
 
-	fileName := "shipment_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	fileName := fmt.Sprintf("shipments_%s.csv", strconv.FormatInt(time.Now().UnixNano(), 10))
+
 	w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Length", strconv.Itoa(int(fileInfo.Size())))
@@ -192,4 +194,13 @@ func truncateData(w http.ResponseWriter) {
 		return
 	}
 	helpers.ResponseJSON(w, dto.ResponseBody{Message: "Database truncated"})
+}
+
+func getLocationByName(w http.ResponseWriter, r *http.Request) {
+	err, location := services.GetLocationByName(r)
+	if err != nil {
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusNotFound})
+		return
+	}
+	helpers.ResponseJSON(w, dto.ResponseBody{Data: location, Count: 1})
 }

@@ -57,6 +57,8 @@ func (lh *LocationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		getLocations(w, r)
 	case strings.EqualFold(path, router.LOCATIONS) && r.Method == http.MethodPut:
 		updateLocationAddressByName(w, r)
+	case strings.Contains(path, "locationName") && r.Method == http.MethodGet:
+		getLocationByName(w, r)
 	default:
 		endpointNotFound(w)
 	}

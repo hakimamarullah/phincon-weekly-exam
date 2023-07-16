@@ -444,5 +444,18 @@ func TruncateData() error {
 		helpers.LogError(err)
 		return errors.New(err.Error())
 	}
+	InitDatastore()
 	return nil
+}
+
+func GetLocationByName(r *http.Request) (error, *domain.Location) {
+	query := r.URL.Query()
+	locationName := query.Get("locationName")
+	exist, location := repository.FindLocationByName(locationName)
+
+	if !exist {
+		return errors.New("location doesn't exist"), nil
+	}
+
+	return nil, location
 }
