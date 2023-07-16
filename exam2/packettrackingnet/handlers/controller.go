@@ -11,6 +11,18 @@ type LocationHandler struct{}
 type PacketHandler struct{}
 type TrackingHandler struct{}
 type ServiceHandler struct{}
+type System struct{}
+
+func (sh *System) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var path = r.URL.String()
+
+	switch {
+	case strings.EqualFold(path, router.SYSTEM_DB_TRUNCATE) && r.Method == http.MethodGet:
+		truncateData(w)
+	default:
+		endpointNotFound(w)
+	}
+}
 
 func (sh *ShipmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var path = r.URL.String()
@@ -28,6 +40,8 @@ func (sh *ShipmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		updateShipmentCheckpoint(w, r)
 	case strings.EqualFold(path, router.SHIPMENTS_BULK_CREATE) && r.Method == http.MethodPost:
 		bulkCreateShipments(w, r)
+	case strings.EqualFold(path, router.SHIPMENTS_DOWNLOAD) && r.Method == http.MethodGet:
+		downloadShipmentCSV(w)
 	default:
 		endpointNotFound(w)
 	}

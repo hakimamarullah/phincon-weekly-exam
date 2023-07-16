@@ -83,22 +83,26 @@ func ReadUploadedCSV(file io.Reader, header bool) ([][]string, error) {
 	return records, nil
 }
 
-func WriteCSV(data [][]string) error {
-	w, err := os.Create("./repository/tmp.csv")
-	if err != nil {
-		return errors.New(err.Error())
-	}
-	defer w.Close()
+func WriteCSV(header []string, data [][]string) (*os.File, error) {
+	file, err := os.CreateTemp("", "tmp_")
 
-	writer := csv.NewWriter(w)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	for _, record := range data {
+	completeData := make([][]string, 0)
+	completeData = append(completeData, header)
+	completeData = append(completeData, data[:]...)
+	for _, record := range completeData {
 		if err := writer.Write(record); err != nil {
-			return errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
 	}
-	return nil
+	file.Seek(0, 0)
+	return file, nil
 }
 
 func InitErrorLogger() {

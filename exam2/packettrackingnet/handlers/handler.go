@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
+	"os"
 	"packettrackingnet/dto"
 	"packettrackingnet/helpers"
 	"packettrackingnet/services"
+	"strconv"
+	"time"
 )
 
 func postSender(w http.ResponseWriter, r *http.Request) {
@@ -140,4 +144,52 @@ func bulkCreateShipments(w http.ResponseWriter, r *http.Request) {
 
 func endpointNotFound(w http.ResponseWriter) {
 	helpers.ResponseJSON(w, dto.ResponseBody{Message: "Resource Not Found", Code: http.StatusNotFound})
+}
+
+func downloadShipmentCSV(w http.ResponseWriter) {
+	file, err := services.DownloadAllShipmentData()
+	if err != nil {
+		helpers.LogError(err)
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusInternalServerError})
+		return
+	}
+
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		helpers.LogError(err)
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusInternalServerError})
+		return
+	}
+
+	fileName := "shipment_" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Length", strconv.Itoa(int(fileInfo.Size())))
+
+	if _, err = file.Seek(0, 0); err != nil {
+		helpers.LogError(err)
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusInternalServerError})
+		return
+	}
+
+	if _, err = io.Copy(w, file); err != nil {
+		helpers.LogError(err)
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusInternalServerError})
+		return
+	}
+}
+
+func truncateData(w http.ResponseWriter) {
+	err := services.TruncateData()
+	if err != nil {
+		helpers.LogError(err)
+		helpers.ResponseJSON(w, dto.ResponseBody{Message: err.Error(), Code: http.StatusInternalServerError})
+		return
+	}
+	helpers.ResponseJSON(w, dto.ResponseBody{Message: "Database truncated"})
 }

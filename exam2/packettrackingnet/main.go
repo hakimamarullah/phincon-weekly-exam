@@ -21,10 +21,14 @@ func init() {
 
 func main() {
 	mux := http.NewServeMux()
+
+	mux.Handle(router.SYSTEM_DB_TRUNCATE, &handlers.System{})
+
 	mux.Handle(router.SHIPMENTS_SENDERS, &handlers.ShipmentHandler{})
 	mux.Handle(router.SHIPMENTS_RECEIVERS, &handlers.ShipmentHandler{})
 	mux.Handle(router.SHIPMENTS, &handlers.ShipmentHandler{})
 	mux.Handle(router.SHIPMENTS_BULK_CREATE, &handlers.ShipmentHandler{})
+	mux.Handle(router.SHIPMENTS_DOWNLOAD, &handlers.ShipmentHandler{})
 
 	mux.Handle(router.LOCATIONS, &handlers.LocationHandler{})
 
@@ -68,5 +72,6 @@ func main() {
 		helpers.LogError(err)
 		return
 	}
+	log.Println("Shutdown")
 
 }

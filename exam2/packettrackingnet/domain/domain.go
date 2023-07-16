@@ -3,6 +3,7 @@ package domain
 import (
 	"packettrackingnet/config/consts"
 	"packettrackingnet/helpers"
+	"strings"
 )
 
 type Packet struct {
@@ -79,4 +80,36 @@ type PacketDetails struct {
 
 func NewPacketDetails(packet Packet, isReceived bool) *PacketDetails {
 	return &PacketDetails{Packet: packet, IsReceived: isReceived}
+}
+
+func (packet *Packet) GetId() string {
+	return strings.ToUpper(packet.PacketId)
+}
+
+func (packet *Packet) GetOrigin() string {
+	return packet.Origin.LocationName
+}
+
+func (packet *Packet) GetDestination() string {
+	return packet.Destination.LocationName
+}
+
+func (packet *Packet) GetSender() string {
+	return packet.Sender.SenderName
+}
+
+func (packet *Packet) GetReceiver() string {
+	return packet.Receiver.ReceiverName
+}
+
+func (shipment *Shipment) GetCurrentPosition() string {
+	checkPoints := shipment.CheckPoints
+	if len(checkPoints) <= 0 {
+		return "UNKNOWN"
+	}
+	return checkPoints[len(checkPoints)-1].LocationName
+}
+
+func (shipment *Shipment) GetId() string {
+	return strings.ToUpper(shipment.ShipmentId)
 }

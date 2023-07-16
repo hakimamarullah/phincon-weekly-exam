@@ -26,7 +26,7 @@ func Logging(next http.Handler) http.Handler {
 		defer func() {
 			log.Printf("%-7s %s - %d\n", r.Method, r.URL.String(), rw.statusCode)
 		}()
-		next.ServeHTTP(rw, r)
+		next.ServeHTTP(w, r)
 	})
 }
 

@@ -5,11 +5,13 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"net/http"
+	"os"
 	"packettrackingnet/config/consts"
 	"packettrackingnet/domain"
 	"packettrackingnet/dto"
 	"packettrackingnet/helpers"
 	"packettrackingnet/repository"
+	"strconv"
 	"strings"
 )
 
@@ -406,5 +408,41 @@ func createShipmentFromCSV(data []string) error {
 	shippingCost := packetData.Weight * serviceData.PricePerKilogram
 	newShipment := domain.NewShipment(packetData, shippingCost, *serviceData, []*domain.Location{packetData.Origin}, false)
 	repository.AddShipment(*newShipment)
+	return nil
+}
+
+func DownloadAllShipmentData() (*os.File, error) {
+	header := []string{"ShipmentID",
+		"PacketID", "Weight", "Sender Name", "Receiver Name", "Origin",
+		"Destination", "Current Position", "Shipping Cost", "Status",
+		"IsReceived",
+	}
+	shipments, _ := repository.GetAllShipment()
+	records := make([][]string, 0)
+
+	for _, item := range *shipments {
+		records = append(records, []string{
+			item.GetId(), item.Packet.GetId(), strconv.FormatFloat(item.Packet.Weight, 'f', -1, 64),
+			item.Packet.GetSender(), item.Packet.GetReceiver(),
+			item.Packet.GetOrigin(), item.Packet.GetDestination(), item.GetCurrentPosition(),
+			strconv.FormatFloat(item.ShippingCost, 'f', -1, 64),
+			item.Packet.Status, strconv.FormatBool(item.IsReceived),
+		})
+	}
+
+	file, err := helpers.WriteCSV(header, records)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return file, nil
+
+}
+
+func TruncateData() error {
+	err := helpers.TruncateDatabase()
+	if err != nil {
+		helpers.LogError(err)
+		return errors.New(err.Error())
+	}
 	return nil
 }
