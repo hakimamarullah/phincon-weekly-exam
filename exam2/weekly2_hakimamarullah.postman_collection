@@ -1,0 +1,664 @@
+{
+	"info": {
+		"_postman_id": "17ba6880-c037-4ba5-a2fd-a7d6cb36f54a",
+		"name": "Tracking Go",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19278069"
+	},
+	"item": [
+		{
+			"name": "Add Sender",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"senderId\", jsonData[\"data\"][\"senderId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderName\": \"Nisdar 2\",\r\n    \"phone\": \"+628888xxx\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments/senders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments",
+						"senders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Receiver",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"receiverId\", jsonData[\"data\"][\"receiverId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"receiverName\": \"Hakim 3\",\r\n    \"phone\": \"+628999xxx\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments/receivers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments",
+						"receivers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Location",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"locationId\", jsonData[\"data\"][\"locationId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"locationName\": \"CGK\",\r\n    \"address\": \"Jalan Tangerang, Tangerang, Banten\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Location II",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"locationId\", jsonData[\"data\"][\"locationId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"locationName\": \"BTJ\",\r\n    \"address\": \"Jalan Banda Aceh, Banten Tiga\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Service",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"serviceName\": \"ONS\",\r\n    \"pricePerKilogram\": 2500.9\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/services",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Packet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"packetId\", jsonData[\"data\"][\"packetId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"{{senderId}}\",\r\n    \"receiverId\": \"{{receiverId}}\",\r\n    \"originName\": \"CGK\",\r\n    \"destinationName\": \"BTJ\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/packets",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"packets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Shipment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"shipmentId\", jsonData[\"data\"][\"shipmentId\"])"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"packetId\":\"{{packetId}}\",\r\n    \"serviceName\": \"ONS\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bulk CSV add Shipments",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/hakim/Downloads/shipment.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments/bulk/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments",
+						"bulk",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Checkpoint",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"shipmentId\":\"{{shipmentId}}\",\r\n    \"locationId\": \"gdng-00001\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Location Address",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"locationName\": \"BTJ\",\r\n    \"address\": \"Jalan Updated Tangerang Lagi 3\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tracking",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/tracking?trackingId={{shipmentId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"tracking"
+					],
+					"query": [
+						{
+							"key": "trackingId",
+							"value": "{{shipmentId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Services",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/services",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Services By Name",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations?locationName=btj",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					],
+					"query": [
+						{
+							"key": "locationName",
+							"value": "btj"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Shipments",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/shipments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Locations",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/locations",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All received packets",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/packets/received",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"packets",
+						"received"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Packet on Checkpoint",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"senderId\":\"aa6792dd-0231-43cf-96b7-95097b27817a\",\r\n    \"receiverId\": \"7bffd21e-111a-46de-bc39-69edce752725\",\r\n    \"originName\": \"BTJ\",\r\n    \"destinationName\": \"CGK\",\r\n    \"weight\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/packets?locationName=btj",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"packets"
+					],
+					"query": [
+						{
+							"key": "locationName",
+							"value": "btj"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Download CSV Shipments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/shipments/download",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"shipments",
+						"download"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Truncate Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/system/db/truncate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"system",
+						"db",
+						"truncate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
