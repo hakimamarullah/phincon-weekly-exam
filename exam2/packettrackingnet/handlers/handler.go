@@ -66,12 +66,12 @@ func postShipment(w http.ResponseWriter, r *http.Request) {
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: shipment, Count: 1, Code: http.StatusCreated})
 }
 
-func getServices(w http.ResponseWriter, r *http.Request) {
+func getServices(w http.ResponseWriter) {
 	results := services.GetAllServices()
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }
 
-func getLocations(w http.ResponseWriter, r *http.Request) {
+func getLocations(w http.ResponseWriter) {
 	results := services.GetAllCheckpoints()
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }
@@ -81,12 +81,12 @@ func getAllPacketByLocationName(w http.ResponseWriter, r *http.Request) {
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }
 
-func getAllShipments(w http.ResponseWriter, r *http.Request) {
+func getAllShipments(w http.ResponseWriter) {
 	results := services.GetAllShipment()
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }
 
-func getAllServiceNames(w http.ResponseWriter, r *http.Request) {
+func getAllServiceNames(w http.ResponseWriter) {
 	results := services.GetAllServiceNames()
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }
@@ -118,7 +118,7 @@ func updateShipmentCheckpoint(w http.ResponseWriter, r *http.Request) {
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: *checkpoint})
 }
 
-func getAllReceivedPackets(w http.ResponseWriter, r *http.Request) {
+func getAllReceivedPackets(w http.ResponseWriter) {
 	results := services.GetAllReceivedPackets()
 	helpers.ResponseJSON(w, dto.ResponseBody{Data: results, Count: len(results)})
 }

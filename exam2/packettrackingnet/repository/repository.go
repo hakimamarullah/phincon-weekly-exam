@@ -47,23 +47,20 @@ func PersistData() {
 	writeData[domain.Packet](config.PACKET, packets)
 }
 
-func AddSender(sender domain.Sender) error {
+func AddSender(sender domain.Sender) {
 	senders = append(senders, sender)
-	return nil
 }
 
-func AddReceiver(receiver domain.Receiver) error {
+func AddReceiver(receiver domain.Receiver) {
 	receivers = append(receivers, receiver)
-	return nil
 }
 
-func AddShipment(shipment domain.Shipment) error {
+func AddShipment(shipment domain.Shipment) {
 	shipments = append(shipments, shipment)
-	return nil
 }
 
-func GetAllShipment() (*[]domain.Shipment, error) {
-	return &shipments, nil
+func GetAllShipment() *[]domain.Shipment {
+	return &shipments
 }
 
 func FindShipmentById(id string) (bool, *domain.Shipment) {
@@ -153,16 +150,15 @@ func FindLocationByName(name string) (bool, *domain.Location) {
 func readData[T any](path string) (*[]T, error) {
 	reader, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err.Error())
+		helpers.LogError(err)
 		return nil, errors.New("can't open file")
 	}
-
 	defer reader.Close()
 
 	decoder := json.NewDecoder(reader)
 	var data *[]T
 	if err := decoder.Decode(&data); err != nil {
-		log.Fatal(err.Error())
+		helpers.LogError(err)
 		return nil, errors.New("error reading data")
 	}
 
@@ -181,9 +177,18 @@ func writeData[T any](path string, data []T) error {
 	encoder := json.NewEncoder(writer)
 
 	if err := encoder.Encode(data); err != nil {
-		log.Fatal(err.Error())
+		helpers.LogError(err)
 		return errors.New("can't write data")
 	}
 
 	return nil
+}
+
+func ExistPacketShipment(packetId string) bool {
+	for _, item := range shipments {
+		if strings.EqualFold(item.PacketId, packetId) {
+			return true
+		}
+	}
+	return false
 }

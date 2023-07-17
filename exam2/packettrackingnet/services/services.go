@@ -20,6 +20,7 @@ import (
 func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 	packet := make(chan *domain.Packet)
 	service := make(chan *domain.Service)
+	existShipment := make(chan bool)
 	var shipmentRequest dto.ShipmentRequest
 	decoder := json.NewDecoder(r.Body)
 
@@ -33,6 +34,10 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 	}
 
 	go func() {
+		existShipment <- repository.ExistPacketShipment(shipmentRequest.PacketID)
+	}()
+
+	go func() {
 		_, tmp := repository.FindPacketById(shipmentRequest.PacketID)
 		packet <- tmp
 	}()
@@ -41,6 +46,10 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 		_, tmp := repository.FindServiceByName(shipmentRequest.ServiceName)
 		service <- tmp
 	}()
+
+	if exist := <-existShipment; exist {
+		return nil, errors.New("packet already processed")
+	}
 
 	packetData := <-packet
 	serviceData := <-service
@@ -59,7 +68,7 @@ func CreateShipment(r *http.Request) (*domain.Shipment, error) {
 // It checks the status of the Shipment-received flag.
 // Returns slice of Packet
 func GetAllReceivedPackets() []domain.Packet {
-	shipments, _ := repository.GetAllShipment()
+	shipments := repository.GetAllShipment()
 	var results = make([]domain.Packet, 0)
 
 	for _, item := range *shipments {
@@ -75,7 +84,7 @@ func GetAllReceivedPackets() []domain.Packet {
 // specified location name.
 // It returns a slice of PacketDetails struct.
 func GetAllPacketsByLocationName(r *http.Request) []domain.PacketDetails {
-	shipments, _ := repository.GetAllShipment()
+	shipments := repository.GetAllShipment()
 	var results = make([]domain.PacketDetails, 0)
 	query := r.URL.Query()
 	locationName := query.Get("locationName")
@@ -129,6 +138,12 @@ func UpdateShipmentCheckpoint(r *http.Request) (*domain.Shipment, error) {
 		return nil, errors.New("data not found")
 	}
 
+	for _, item := range shipment.CheckPoints {
+		if strings.EqualFold(item.LocationId, location.LocationId) {
+			return shipment, errors.New("duplicate checkpoint")
+		}
+	}
+
 	shipment.CheckPoints = append(shipment.CheckPoints, location)
 
 	if len(shipment.CheckPoints) > 0 {
@@ -144,7 +159,7 @@ func UpdateShipmentCheckpoint(r *http.Request) (*domain.Shipment, error) {
 // GetAllShipment function to get all shipments saved in repository.
 // Returns slice of Shipment struct.
 func GetAllShipment() []domain.Shipment {
-	results, _ := repository.GetAllShipment()
+	results := repository.GetAllShipment()
 	return *results
 }
 
@@ -168,7 +183,7 @@ func AddSender(r *http.Request) (*domain.Sender, error) {
 	return newSender, nil
 }
 
-// AddService function to add new service into repository.
+// AddService function to add new service into the repository.
 // Returns the newly created Service pointer.
 func AddService(r *http.Request) (*domain.Service, error) {
 	var service domain.Service
@@ -417,7 +432,7 @@ func DownloadAllShipmentData() (*os.File, error) {
 		"Destination", "Current Position", "Shipping Cost", "Status",
 		"IsReceived",
 	}
-	shipments, _ := repository.GetAllShipment()
+	shipments := repository.GetAllShipment()
 	records := make([][]string, 0)
 
 	for _, item := range *shipments {

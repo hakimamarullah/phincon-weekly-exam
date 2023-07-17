@@ -35,7 +35,7 @@ func (sh *ShipmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.EqualFold(path, router.SHIPMENTS) && r.Method == http.MethodPost:
 		postShipment(w, r)
 	case strings.EqualFold(path, router.SHIPMENTS) && r.Method == http.MethodGet:
-		getAllShipments(w, r)
+		getAllShipments(w)
 	case strings.EqualFold(path, router.SHIPMENTS) && r.Method == http.MethodPut:
 		updateShipmentCheckpoint(w, r)
 	case strings.EqualFold(path, router.SHIPMENTS_BULK_CREATE) && r.Method == http.MethodPost:
@@ -54,7 +54,7 @@ func (lh *LocationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.EqualFold(path, router.LOCATIONS) && r.Method == http.MethodPost:
 		postLocation(w, r)
 	case strings.EqualFold(path, router.LOCATIONS) && r.Method == http.MethodGet:
-		getLocations(w, r)
+		getLocations(w)
 	case strings.EqualFold(path, router.LOCATIONS) && r.Method == http.MethodPut:
 		updateLocationAddressByName(w, r)
 	case strings.Contains(path, "locationName") && r.Method == http.MethodGet:
@@ -72,7 +72,7 @@ func (ph *PacketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.Contains(path, "locationName") && r.Method == http.MethodGet:
 		getAllPacketByLocationName(w, r)
 	case strings.EqualFold(path, router.PACKETS_RECEIVED) && r.Method == http.MethodGet:
-		getAllReceivedPackets(w, r)
+		getAllReceivedPackets(w)
 	default:
 		endpointNotFound(w)
 	}
@@ -98,9 +98,9 @@ func (svh *ServiceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.EqualFold(path, router.SERVICES) && r.Method == http.MethodPost:
 		postService(w, r)
 	case strings.EqualFold(path, router.SERVICES) && r.Method == http.MethodGet:
-		getServices(w, r)
+		getServices(w)
 	case strings.EqualFold(path, router.SERVICES_NAMES) && r.Method == http.MethodGet:
-		getAllServiceNames(w, r)
+		getAllServiceNames(w)
 	default:
 		endpointNotFound(w)
 	}
