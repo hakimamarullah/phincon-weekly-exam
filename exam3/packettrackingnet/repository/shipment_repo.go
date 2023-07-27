@@ -66,7 +66,7 @@ func AddShipment(shipment dto.ShipmentRequest) (int64, error) {
 
 func GetAllShipments() ([]dao.ShipmentDAO, error) {
 	shipments := make([]dao.ShipmentDAO, 0)
-	shipStmt, err := DB.Prepare("SELECT ShipmentId, Packet, ShippingCost, Service, IsReceived FROM Shipment")
+	shipStmt, err := DB.Prepare("SELECT ShipmentId, Packet, ShippingCost, Service, IsReceived, CreatedOn, UpdatedOn FROM Shipment")
 	if err != nil {
 		return shipments, err
 	}
@@ -80,7 +80,7 @@ func GetAllShipments() ([]dao.ShipmentDAO, error) {
 	for rows.Next() {
 		var shipment dao.ShipmentDAO
 		var packetId, serviceId int64
-		err := rows.Scan(&shipment.ShipmentId, &packetId, &shipment.ShippingCost, &serviceId, &shipment.IsReceived)
+		err := rows.Scan(&shipment.ShipmentId, &packetId, &shipment.ShippingCost, &serviceId, &shipment.IsReceived, &shipment.CreatedOn, &shipment.UpdatedOn)
 		if err != nil {
 			return shipments, err
 		}
@@ -142,7 +142,7 @@ func GetAllCheckpointsByShipmentID(shipmentID int64) ([]dao.LocationDAO, error) 
 // FindShipmentById retrieves a ShipmentDAO from the database based on the given ShipmentID.
 func FindShipmentById(shipmentId int64) (*dao.ShipmentDAO, error) {
 	// Prepare the SQL statement to retrieve customer data based on the given CustomerID.
-	stmt, err := DB.Prepare("SELECT ShipmentId, Packet, ShippingCost, Service, IsReceived FROM Shipment where ShipmentId = ?")
+	stmt, err := DB.Prepare("SELECT ShipmentId, Packet, ShippingCost, Service, IsReceived, CreatedOn, UpdatedOn FROM Shipment where ShipmentId = ?")
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare SQL statement: %v", err)
 	}
@@ -150,7 +150,7 @@ func FindShipmentById(shipmentId int64) (*dao.ShipmentDAO, error) {
 
 	// Execute the SQL statement and scan the result into the ShipmentDAO struct.
 	var shipment domain.Shipment
-	err = stmt.QueryRow(shipmentId).Scan(&shipment.ShipmentId, &shipment.Packet, &shipment.ShippingCost, &shipment.Service, &shipment.IsReceived)
+	err = stmt.QueryRow(shipmentId).Scan(&shipment.ShipmentId, &shipment.Packet, &shipment.ShippingCost, &shipment.Service, &shipment.IsReceived, &shipment.CreatedOn, &shipment.UpdatedOn)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("shipment with ID %d not found", shipmentId)
@@ -170,7 +170,8 @@ func FindShipmentById(shipmentId int64) (*dao.ShipmentDAO, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := dao.NewShipmentDAO(shipmentId, packet, shipment.ShippingCost, service, checkpoints, shipment.IsReceived)
+	result := dao.NewShipmentDAO(shipmentId, packet, shipment.ShippingCost, service, checkpoints, shipment.IsReceived, shipment.CreatedOn, shipment.UpdatedOn)
+
 	return result, nil
 }
 

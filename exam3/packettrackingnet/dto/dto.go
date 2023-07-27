@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type ResponseBody struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
@@ -29,4 +31,25 @@ type UpdateShipmentRequest struct {
 type UpdateLocationAddressRequest struct {
 	LocationName string `json:"locationName" validate:"required"`
 	Address      string `json:"address" validate:"required"`
+}
+
+type ShipmentResponse struct {
+	ShipmentId         int64     `json:"shipmentId"`
+	PacketId           int64     `json:"packetId" validate:"required"`
+	SenderId           int64     `json:"senderId"`
+	SenderName         string    `json:"senderName"`
+	SenderPhone        string    `json:"senderPhone"`
+	ReceiverId         int64     `json:"receiverId"`
+	ReceiverName       string    `json:"receiverName"`
+	ReceiverPhone      string    `json:"receiverPhone"`
+	OriginId           int64     `json:"originId"`
+	OriginName         string    `json:"originName"`
+	OriginAddress      string    `json:"originAddress"`
+	DestinationId      int64     `json:"destinationId"`
+	DestinationName    string    `json:"destinationName"`
+	DestinationAddress string    `json:"destinationAddress" validate:"required"`
+	Weight             float64   `json:"weight"`
+	Status             string    `json:"status"`
+	CreatedOn          time.Time `json:"createdOn"`
+	UpdatedOn          time.Time `json:"updatedOn"`
 }

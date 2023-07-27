@@ -1,5 +1,7 @@
 package dao
 
+import "time"
+
 type CustomerDAO struct {
 	CustomerId int64  `json:"id"`
 	Name       string `json:"name"`
@@ -31,10 +33,12 @@ type ShipmentDAO struct {
 	Service      ServiceDAO    `validate:"required"`
 	CheckPoints  []LocationDAO `json:"checkPoints"`
 	IsReceived   bool          `json:"isReceived"`
+	CreatedOn    time.Time     `json:"createdOn"`
+	UpdatedOn    time.Time     `json:"updatedOn"`
 }
 
-func NewShipmentDAO(shipmentId int64, packet PacketDAO, shippingCost float64, service ServiceDAO, checkPoints []LocationDAO, isReceived bool) *ShipmentDAO {
-	return &ShipmentDAO{ShipmentId: shipmentId, Packet: packet, ShippingCost: shippingCost, Service: service, CheckPoints: checkPoints, IsReceived: isReceived}
+func NewShipmentDAO(shipmentId int64, packet PacketDAO, shippingCost float64, service ServiceDAO, checkPoints []LocationDAO, isReceived bool, createdOn time.Time, updatedOn time.Time) *ShipmentDAO {
+	return &ShipmentDAO{ShipmentId: shipmentId, Packet: packet, ShippingCost: shippingCost, Service: service, CheckPoints: checkPoints, IsReceived: isReceived, CreatedOn: createdOn, UpdatedOn: updatedOn}
 }
 
 type LocationDAO struct {

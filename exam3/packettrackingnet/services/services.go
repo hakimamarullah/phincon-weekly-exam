@@ -11,6 +11,7 @@ import (
 	"packettrackingnet/domain"
 	"packettrackingnet/dto"
 	"packettrackingnet/helpers"
+	"packettrackingnet/mapper"
 	"packettrackingnet/repository"
 	"strconv"
 	"strings"
@@ -77,7 +78,7 @@ func GetAllCheckpoints() []dao.LocationDAO {
 // UpdateShipmentCheckpoint function to update checkpoint of shipment.
 // It only appends the new checkpoint to the end of the checkpoint's slice.
 // Returns error if the Shipment or Location is not found.
-func UpdateShipmentCheckpoint(r *http.Request) (*dao.ShipmentDAO, error) {
+func UpdateShipmentCheckpoint(r *http.Request) (*dto.ShipmentResponse, error) {
 	shipmentChan := make(chan *dao.ShipmentDAO)
 	LocationChan := make(chan *dao.LocationDAO)
 	var updateShipmentRequest dto.UpdateShipmentRequest
@@ -109,7 +110,7 @@ func UpdateShipmentCheckpoint(r *http.Request) (*dao.ShipmentDAO, error) {
 
 	for _, item := range shipment.CheckPoints {
 		if item.LocationId == location.LocationId {
-			return shipment, errors.New("duplicate checkpoint")
+			return mapper.ShipmentDaoToShipmentResponse(*shipment), errors.New("duplicate checkpoint")
 		}
 	}
 
@@ -137,14 +138,18 @@ func UpdateShipmentCheckpoint(r *http.Request) (*dao.ShipmentDAO, error) {
 	}
 	updatedShipment, _ := repository.FindShipmentById(shipment.ShipmentId)
 
-	return updatedShipment, nil
+	return mapper.ShipmentDaoToShipmentResponse(*updatedShipment), nil
 }
 
 // GetAllShipment function to get all shipments saved in repository.
 // Returns slice of Shipment struct.
-func GetAllShipment() []dao.ShipmentDAO {
-	results, _ := repository.GetAllShipments()
-	return results
+func GetAllShipment() []dto.ShipmentResponse {
+	shipments, _ := repository.GetAllShipments()
+	response := make([]dto.ShipmentResponse, 0)
+	for _, item := range shipments {
+		response = append(response, *mapper.ShipmentDaoToShipmentResponse(item))
+	}
+	return response
 }
 
 // AddSender function to add new sender into repository.
@@ -315,7 +320,6 @@ func GetAllServices() []dao.ServiceDAO {
 
 // GetAllServiceNames function to get all service names from repository,
 // Returns slice of service's name
-
 func GetAllServiceNames() []string {
 	var results []string
 	services, _ := repository.GetAllServices()
@@ -337,7 +341,7 @@ func GetServiceByName(r *http.Request) *dao.ServiceDAO {
 
 // GetShipmentById function to query Shipment from repository by Shipment ID.
 // Returns boolean to indicate the existence of Shipment and Shipment pointer.
-func GetShipmentById(r *http.Request) (bool, *dao.ShipmentDAO) {
+func GetShipmentById(r *http.Request) (bool, *dto.ShipmentResponse) {
 	query := r.URL.Query()
 	id := query.Get("trackingId")
 	intId, err2 := strconv.Atoi(id)
@@ -348,7 +352,7 @@ func GetShipmentById(r *http.Request) (bool, *dao.ShipmentDAO) {
 	if err != nil {
 		return false, nil
 	}
-	return true, shipment
+	return true, mapper.ShipmentDaoToShipmentResponse(*shipment)
 }
 
 func UpdateLocationAddress(r *http.Request) error {

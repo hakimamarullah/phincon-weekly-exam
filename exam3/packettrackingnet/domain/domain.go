@@ -2,6 +2,7 @@ package domain
 
 import (
 	"packettrackingnet/config/consts"
+	"time"
 )
 
 type Customer struct {
@@ -28,12 +29,14 @@ func NewCustomer(senderName string, phone string) *Customer {
 }
 
 type Shipment struct {
-	ShipmentId   int64   `json:"shipmentId"`
-	Packet       int64   `validate:"required"`
-	ShippingCost float64 `json:"shippingCost" validate:"required"`
-	Service      int64   `validate:"required"`
-	CheckPoints  []int64 `json:"checkPoints"`
-	IsReceived   bool    `json:"isReceived"`
+	ShipmentId   int64     `json:"shipmentId"`
+	Packet       int64     `validate:"required"`
+	ShippingCost float64   `json:"shippingCost" validate:"required"`
+	Service      int64     `validate:"required"`
+	CheckPoints  []int64   `json:"checkPoints"`
+	IsReceived   bool      `json:"isReceived"`
+	CreatedOn    time.Time `json:"createdOn"`
+	UpdatedOn    time.Time `json:"updatedOn"`
 }
 
 func NewShipment(packet int64, shippingCost float64, service int64, checkPoints []int64, isReceived bool) *Shipment {

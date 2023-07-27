@@ -19,7 +19,6 @@ func init() {
 	repository.ConnectDatabaseMySQL()
 }
 func main() {
-
 	mux := http.NewServeMux()
 
 	mux.Handle(router.SHIPMENTS_SENDERS, &handlers.ShipmentHandler{})
